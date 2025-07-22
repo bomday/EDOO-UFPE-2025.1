@@ -65,18 +65,9 @@ struct OutputInfo {
 
 // Checks if a string can be fully typed given a set of broken keys
 bool checkIfIsPrintable(string stringToCheck, string stringToCompare) {
+
     for (char letter : stringToCheck) {
-        bool foundLetter = false;
-        char lowerLetter = tolower(letter); // Case-insensitive check
-
-        for (char comparedLetter : stringToCompare) {
-            if (tolower(comparedLetter) == lowerLetter) {
-                foundLetter = true;
-                break;
-            }
-        }
-
-        if (foundLetter) {
+        if (stringToCompare.find(letter) != string::npos) {
             return false; // Cannot type if the letter is broken
         }
     }
@@ -122,9 +113,8 @@ int main() {
     vector<OutputInfo> outputInfo; // Stores case results
 
     // Process multiple cases until "finish"
-    do {
+    while (getline(cin, keyboardInput) && keyboardInput != "finish") {
         int numPrintableLines = 0; 
-        bool isBrokenKey = true; // Indicates whether we're reading broken keys
         bool isPrintable = true; // Flag for line printability
         bool isEndActivate = false; // Flag for activate END 
         string alphabetStr = "abcdefghijklmnopqrstuvwxyz"; 
@@ -132,61 +122,50 @@ int main() {
         string keysThatCanNotBeBrokenStr; // Letters confirmed to be usable
         string brokenKeysStr; // Actual broken keys for the case
 
-        // Process a single case (until "END" or "finish")
-        do {
-            getline(cin, keyboardInput);
+        // Step 0: Store case
+        numCase++;
 
-            if (keyboardInput == "finish") {
-                break;  // Exit all processing
-            } 
-
-            if (isBrokenKey) {
-                isBrokenKey = false; 
-                brokenKeysStr = keyboardInput; // Store broken keys on first read
-            } else {
-
-                isPrintable = checkIfIsPrintable(brokenKeysStr, keyboardInput);
-
-                // Indicates if line is printable
-                if (isPrintable) {
-                    numPrintableLines++;
-                    
-                    // Add each character from the valid line to the "cannot be broken" set
-                    for (char letter : keyboardInput) {
-                        int letterPosition = -1;
-
-                        if ('a' <= letter && letter <= 'z') {
-                            letterPosition = letter - 'a';
-                        } else if ('A' <= letter && letter <= 'Z') {
-                            letterPosition = letter - 'A';
-                        }
-
-                        // Add to safe list only if it's not already there
-                        if (keysThatCanNotBeBrokenStr.find(letter) == string::npos) { 
-                            keysThatCanNotBeBrokenStr.push_back(alphabetStr[letterPosition]);    
-                        } 
-                    } 
-                    
-                }
-
-                if (keyboardInput == "END") {
-                    break;
-                }  
-            }         
- 
-        } while (keyboardInput != "finish");
-
-        if (keyboardInput == "finish") {
-            break;  // Exit after processing current case
+        // Step 1: Store broken keys on first read (lower case)
+        for (char brokenLetter : keyboardInput) {
+            brokenKeysStr += std::tolower(brokenLetter);
         }
-        
-        // Identify which letters may still be broken (unused and not in broken list)
+
+        // Step 2: Run case lines 
+        while (getline(cin, keyboardInput)) {
+            
+            string keyboardInputLowerCase;
+
+            // Step 3: Store text input on lower case
+            for (char letter : keyboardInput) {
+                keyboardInputLowerCase += std::tolower(letter);
+            }
+
+            // Step 4: Check if the input has broken keys
+            isPrintable = checkIfIsPrintable(keyboardInputLowerCase, brokenKeysStr);
+
+            // Step 5: Add each character from the valid line to the "cannot be broken" set if it is printable
+            if (isPrintable) {
+                numPrintableLines++; 
+                
+                // Add keys to the "cannot be broken" set
+                for (char letter : keyboardInputLowerCase) {
+                    int letterPosition = letter - 'a';
+
+                    // Add to safe list only if it's not already there
+                    if (keysThatCanNotBeBrokenStr.find(letter) == string::npos) { 
+                        keysThatCanNotBeBrokenStr.push_back(alphabetStr[letterPosition]);    
+                    } 
+                } 
+            }
+
+            if (keyboardInput == "END") {
+                break;
+            }  
+        }
+
+        // Step 6: Identify which letters may still be broken (unused and not in broken list)
         for (char letter : alphabetStr) {
             int letterPosition = letter - 'a';
-
-            for (int i = 0; i < (int)brokenKeysStr.size(); i++) {
-                brokenKeysStr[i] = tolower(brokenKeysStr[i]);
-            }
 
             // Letter not proven to work and not already in the broken list
             if (keysThatCanNotBeBrokenStr.find(letter) == string::npos && brokenKeysStr.find(letter) == string::npos) {
@@ -196,12 +175,10 @@ int main() {
             }
         }
 
-        // Store case result
-        numCase++; // For cases where not only "END" is processed
-        outputInfo.push_back({numCase, numPrintableLines, keysThatCanBeBrokenStr}); 
-
-    } while (keyboardInput != "finish");
+        // Step 7: Store case result
+        outputInfo.push_back({numCase, numPrintableLines, keysThatCanBeBrokenStr});
+    }
     
-    // Print all collected output
+    // Step 8: Print all collected output
     printTable(outputInfo);
 }
