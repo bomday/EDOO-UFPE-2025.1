@@ -126,6 +126,7 @@ int main() {
         int numPrintableLines = 0; 
         bool isBrokenKey = true; // Indicates whether we're reading broken keys
         bool isPrintable = true; // Flag for line printability
+        bool isEndActivate = false; // Flag for activate END 
         string alphabetStr = "abcdefghijklmnopqrstuvwxyz"; 
         string keysThatCanBeBrokenStr; // Possible broken keys based on untyped letters
         string keysThatCanNotBeBrokenStr; // Letters confirmed to be usable
@@ -139,10 +140,11 @@ int main() {
                 break;  // Exit all processing
             } 
 
-            if (isBrokenKey && keyboardInput != "END") {
+            if (isBrokenKey) {
                 isBrokenKey = false; 
                 brokenKeysStr = keyboardInput; // Store broken keys on first read
-            } else if (!isBrokenKey){
+            } else {
+
                 isPrintable = checkIfIsPrintable(brokenKeysStr, keyboardInput);
 
                 // Indicates if line is printable
@@ -166,9 +168,13 @@ int main() {
                     } 
                     
                 }
-            }
+
+                if (keyboardInput == "END") {
+                    break;
+                }  
+            }         
  
-        } while (keyboardInput != "END" && keyboardInput != "finish");
+        } while (keyboardInput != "finish");
 
         if (keyboardInput == "finish") {
             break;  // Exit after processing current case
@@ -191,15 +197,11 @@ int main() {
         }
 
         // Store case result
-        if (!isBrokenKey) {
-            numCase++; // For cases where not only "END" is processed
-            outputInfo.push_back({numCase, numPrintableLines, keysThatCanBeBrokenStr}); 
-        }
+        numCase++; // For cases where not only "END" is processed
+        outputInfo.push_back({numCase, numPrintableLines, keysThatCanBeBrokenStr}); 
 
     } while (keyboardInput != "finish");
     
     // Print all collected output
-    if (!outputInfo.empty()) {
-        printTable(outputInfo);
-    }
+    printTable(outputInfo);
 }
