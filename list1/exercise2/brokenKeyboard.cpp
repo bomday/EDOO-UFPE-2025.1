@@ -149,23 +149,22 @@ int main() {
                 if (isPrintable) {
                     numPrintableLines++;
                     
-                    if (!brokenKeysStr.empty()) {
-                        // Add each character from the valid line to the "cannot be broken" set
-                        for (char letter : keyboardInput) {
-                            int letterPosition = -1;
+                    // Add each character from the valid line to the "cannot be broken" set
+                    for (char letter : keyboardInput) {
+                        int letterPosition = -1;
 
-                            if ('a' <= letter && letter <= 'z') {
-                                letterPosition = letter - 'a';
-                            } else if ('A' <= letter && letter <= 'Z') {
-                                letterPosition = letter - 'A';
-                            }
+                        if ('a' <= letter && letter <= 'z') {
+                            letterPosition = letter - 'a';
+                        } else if ('A' <= letter && letter <= 'Z') {
+                            letterPosition = letter - 'A';
+                        }
 
-                            // Add to safe list only if it's not already there
-                            if (keysThatCanNotBeBrokenStr.find(letter) == string::npos) { 
-                                keysThatCanNotBeBrokenStr.push_back(alphabetStr[letterPosition]);    
-                            } 
+                        // Add to safe list only if it's not already there
+                        if (keysThatCanNotBeBrokenStr.find(letter) == string::npos) { 
+                            keysThatCanNotBeBrokenStr.push_back(alphabetStr[letterPosition]);    
                         } 
-                    }
+                    } 
+                    
                 }
             }
  
