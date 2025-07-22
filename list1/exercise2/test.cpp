@@ -129,7 +129,7 @@ int main() {
         string alphabetStr = "abcdefghijklmnopqrstuvwxyz"; 
         string keysThatCanBeBrokenStr; // Possible broken keys based on untyped letters
         string keysThatCanNotBeBrokenStr; // Letters confirmed to be usable
-        string brokenKeysStr; // Actual broken keys for the case
+        string brokenKeysStr = ""; // Actual broken keys for the case
 
         // Process a single case (until "END" or "finish")
         do {
@@ -137,37 +137,40 @@ int main() {
 
             if (keyboardInput == "finish") {
                 break;  // Exit all processing
-            } 
+            } else if (keyboardInput == "END") {
+                isBrokenKey = false; // For cases where only "END" is processed
+            }
 
-            if (isBrokenKey && keyboardInput != "END") {
+            if (isBrokenKey) {
                 isBrokenKey = false; 
                 brokenKeysStr = keyboardInput; // Store broken keys on first read
-            } else if (!isBrokenKey){
-                isPrintable = checkIfIsPrintable(brokenKeysStr, keyboardInput);
+            } 
 
-                // Indicates if line is printable
-                if (isPrintable) {
-                    numPrintableLines++;
-                    
-                    if (!brokenKeysStr.empty()) {
-                        // Add each character from the valid line to the "cannot be broken" set
-                        for (char letter : keyboardInput) {
-                            int letterPosition = -1;
+            isPrintable = checkIfIsPrintable(brokenKeysStr, keyboardInput);
 
-                            if ('a' <= letter && letter <= 'z') {
-                                letterPosition = letter - 'a';
-                            } else if ('A' <= letter && letter <= 'Z') {
-                                letterPosition = letter - 'A';
-                            }
+            // Indicates if line is printable
+            if (isPrintable) {
+                numPrintableLines++;
+                
+                if (keyboardInput != "END") {
+                    // Add each character from the valid line to the "cannot be broken" set
+                    for (char letter : keyboardInput) {
+                        int letterPosition = -1;
 
-                            // Add to safe list only if it's not already there
-                            if (keysThatCanNotBeBrokenStr.find(letter) == string::npos) { 
-                                keysThatCanNotBeBrokenStr.push_back(alphabetStr[letterPosition]);    
-                            } 
+                        if ('a' <= letter && letter <= 'z') {
+                            letterPosition = letter - 'a';
+                        } else if ('A' <= letter && letter <= 'Z') {
+                            letterPosition = letter - 'A';
+                        }
+
+                        // Add to safe list only if it's not already there
+                        if (keysThatCanNotBeBrokenStr.find(letter) == string::npos) { 
+                            keysThatCanNotBeBrokenStr.push_back(alphabetStr[letterPosition]);    
                         } 
                     }
-                }
+                } 
             }
+
  
         } while (keyboardInput != "END" && keyboardInput != "finish");
 
@@ -178,7 +181,6 @@ int main() {
         // Identify which letters may still be broken (unused and not in broken list)
         for (char letter : alphabetStr) {
             int letterPosition = letter - 'a';
-
             for (int i = 0; i < (int)brokenKeysStr.size(); i++) {
                 brokenKeysStr[i] = tolower(brokenKeysStr[i]);
             }
@@ -192,15 +194,11 @@ int main() {
         }
 
         // Store case result
-        if (!isBrokenKey) {
-            numCase++; // For cases where not only "END" is processed
-            outputInfo.push_back({numCase, numPrintableLines, keysThatCanBeBrokenStr}); 
-        }
+        numCase++; 
+        outputInfo.push_back({numCase, numPrintableLines, keysThatCanBeBrokenStr}); 
 
     } while (keyboardInput != "finish");
     
     // Print all collected output
-    if (!outputInfo.empty()) {
-        printTable(outputInfo);
-    }
+    printTable(outputInfo);
 }
